@@ -1,0 +1,41 @@
+[DEFAULT]
+# Указываем, что ведутся journalctl
+backend = systemd
+
+bantime.increment = true
+bantime.factor = 1
+bantime.formula = ban.Time * (1<<(ban.Count if ban.Count<20 else 20)) * banFactor
+
+# чтоб не забанить самого себя
+ignoreself = true
+ignoreip = 127.0.0.1/24 ::1 1.2.3.4
+
+bantime = 1d
+findtime = 3h
+maxretry = 3
+banaction = iptables-allports
+
+# Защита SSH
+[sshd]
+port = 22, 12345
+enabled = true
+mode = extra
+
+# Защита от сканирования портов
+[portscan]
+enabled = true
+filter = portscan
+backend = systemd
+logpath = journalmatch:_SYSTEMD_UNIT=kernel.service
+maxretry = 1
+findtime = 1h
+bantime = 6h
+
+# Перманентный банлист
+[manualban]
+enabled  = true
+filter   = manualban
+action   = iptables-allports[name=ManualBan]
+logpath  = /dev/null
+bantime  = -1
+maxretry = 1
