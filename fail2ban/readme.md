@@ -137,16 +137,6 @@ sudo chmod +x /usr/local/jails.sh
 ```bash
 #!/bin/bash
 
-# цвет
-YELLOW='\033[1;33m'
-NC='\033[0m'
-
-# Проверяем, запущен ли скрипт от root
-if [ "$EUID" -ne 0 ]; then
-  echo -e "${YELLOW}Ошибка: ${NC}Скрипт должен быть запущен от root"
-  exit 1
-fi
-
 # Получаем строку со списком jail'ов
 jail_list=$(sudo fail2ban-client status | grep -i "Jail list:")
 
