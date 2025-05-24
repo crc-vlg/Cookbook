@@ -8,6 +8,8 @@
 
 [Частые команды](#ЧастыеКоманды)
 
+[Просмотр количества банов по jail’ам](#jaillist)
+
 ## <a id="Установка">Установка</a>
 ```bash
 sudo apt install fail2ban
@@ -124,3 +126,39 @@ sudo ban_persistent_ips.sh 120
 |`fail2ban-client start <имя_jail>`|Включить jail|
 |`grep 'Ban' /var/log/fail2ban.log \| awk '{print $NF}' \| sort \| uniq -c \| sort -nr \| head`|Вывести список уникальных IP адресов, заблокированных по несколько раз и количество их блокировок в порядке убывания|
 |`fail2ban-client get <имя_jail> banned \| tr ',' '\n' \| sed 's/[^0-9\.]//g' \| uniq \| xargs -r -l1 fail2ban-client set <имя_jail> unbanip`|Разблокировать все IP-адреса конкретного jail|
+
+## <a id="jaillist">Просмотр количества банов по jail’ам</a>
+Для того, чтобы получить статистические данные о заблокированных IP-адресах по всем jail без вывода списков IP-адресов можно воспользоваться скриптом, для этого создадим файл jails.sh с правом выполнения
+```bash
+sudo touch /usr/local/jails.sh
+sudo chmod +x /usr/local/jails.sh
+```
+со следующим содержанием
+```bash
+#!/bin/bash
+
+# цвет
+YELLOW='\033[1;33m'
+NC='\033[0m'
+
+# Проверяем, запущен ли скрипт от root
+if [ "$EUID" -ne 0 ]; then
+  echo -e "${YELLOW}Ошибка: ${NC}Скрипт должен быть запущен от root"
+  exit 1
+fi
+
+# Получаем строку со списком jail'ов
+jail_list=$(sudo fail2ban-client status | grep -i "Jail list:")
+
+# Извлекаем только список jail после двоеточия, убираем все пробельные символы и спецсимволы
+jail_names=$(echo "$jail_list" | sed -E 's/[^:]*:[[:space:]]*//; s/[[:space:]]+//g')
+
+# Преобразуем в массив по запятым
+IFS=',' read -r -a jails <<< "$jail_names"
+
+# Перебираем все jail
+for jail in "${jails[@]}"; do
+    echo "=== $jail ==="
+    sudo fail2ban-client status "$jail" 2>/dev/null | grep -i "banned:"
+done
+```
