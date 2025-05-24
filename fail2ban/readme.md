@@ -130,8 +130,8 @@ sudo ban_persistent_ips.sh 120
 ## <a id="jaillist">Просмотр количества банов по jail’ам</a>
 Для того, чтобы получить статистические данные о заблокированных IP-адресах по всем jail без вывода списков IP-адресов можно воспользоваться скриптом, для этого создадим файл jails.sh с правом выполнения
 ```bash
-sudo touch /usr/local/jails.sh
-sudo chmod +x /usr/local/jails.sh
+sudo touch /usr/local/bin/jails.sh
+sudo chmod +x /usr/local/bin/jails.sh
 ```
 со следующим содержанием
 ```bash
