@@ -123,3 +123,4 @@ sudo ban_persistent_ips.sh 120
 |`fail2ban-client stop <имя_jail>`|Остановить блокировку новых IP для конкретного jail|
 |`fail2ban-client start <имя_jail>`|Включить jail|
 |`grep 'Ban' /var/log/fail2ban.log \| awk '{print $NF}' \| sort \| uniq -c \| sort -nr \| head`|Вывести список уникальных IP адресов, заблокированных по несколько раз и количество их блокировок в порядке убывания|
+|`fail2ban-client get <имя_jail> banned \| tr ',' '\n' \| sed 's/[^0-9\.]//g' \| uniq \| xargs -r -l1 fail2ban-client set <имя_jail> unbanip`|Разблокировать все IP-адреса конкретного jail|
