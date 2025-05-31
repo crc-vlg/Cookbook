@@ -100,7 +100,7 @@ Host myNameServer
   # ключ
   IdentityFile ~/.ssh/key_file_name
   # пользователь
-  User someuser
+  User username
   # проброс локального 5000 порта на удаленный хост:порт
   LocalForward 5000 127.0.0.1:1234
   # проброс локального 6000 порта на удаленный хост:порт
