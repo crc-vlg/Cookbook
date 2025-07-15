@@ -77,6 +77,7 @@ services:
       - "127.0.0.1:9090:9090"
     command: 
       - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
       - '--storage.tsdb.retention.time=30d'
     user: "65534:65534"
     read_only: true
@@ -87,7 +88,7 @@ services:
     # задать для prometheus-data владельца nobody (UID 65534)
     volumes:
       - ./prometheus.yml:/etc/prometheus/prometheus.yml
-      - ./prometheus-data:/etc/prometheus
+      - ./prometheus-data:/prometheus
     networks:
       - monitoring
   
