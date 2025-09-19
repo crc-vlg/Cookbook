@@ -36,5 +36,5 @@ sudo ufw delete 3
 5. Примечание. После каких-либо изменений в правилах ufw, необходим его перезапуск
 ```bash
 sudo ufw reload
-sudo ufw restart
+sudo systemctl restart ufw
 ```
