@@ -26,7 +26,7 @@ sudo chown 472:472 -R ~/monitoring/grafana-data/
 # права на каталог пользователю с UID 65534 (nobody)
 sudo chown 65534:65534 -R ~/monitoring/prometheus-data/
 ```
-а также сгененрировать сертификат для Grafana и задать права доступа:
+а также сгенерировать сертификат для Grafana и задать права доступа:
 ```bash
 cd ~/monitoring/cert
 openssl genrsa -out private.key 4096
