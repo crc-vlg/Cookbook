@@ -15,9 +15,9 @@ Prometheus - система мониторинга и оповещения, ко
 ## <a id="create">Создание каталогов и прав доступа</a>
 Создадим в домашнем каталоге пользователя каталог `monitoring`, в котором будет находится Grafana и Prometheus
 ```bash
-cd ~ && mkdir monitoring && cd monitoring && mkdir grafana-data prometheus-data
+cd ~ && mkdir monitoring && cd monitoring && mkdir grafana-data prometheus-data cert
 ```
-Также там создадутся каталоги `grafana-data` (для хранения данных от Grafana) и `prometheus-data` (хранение данных Prometheus), мы сделаем проброс этих каталогов в их контейнеры
+Также там создадутся каталоги `grafana-data` (для хранения данных от Grafana), `prometheus-data` (хранение данных Prometheus) и `cert` (для [самоподписанных](/tls/selfsigned/readme.md) TLS-сертификатов), мы сделаем проброс этих каталогов в их контейнеры
 
 Для нормальной работы приложений, нужно задать права доступа к их каталогам:
 ```bash
@@ -25,6 +25,15 @@ cd ~ && mkdir monitoring && cd monitoring && mkdir grafana-data prometheus-data
 sudo chown 472:472 -R ~/monitoring/grafana-data/
 # права на каталог пользователю с UID 65534 (nobody)
 sudo chown 65534:65534 -R ~/monitoring/prometheus-data/
+```
+а также сгененрировать сертификат для Grafana и задать права доступа:
+```bash
+cd ~/monitoring/cert
+openssl genrsa -out private.key 4096
+chmod 600 private.key
+openssl req -key private.key -new -out cert.csr
+openssl x509 -signkey private.key -in cert.csr -req -days 365 -out cert.crt
+sudo chown 472:472 -R ~/monitoring/cert/
 ```
 ## <a id="prometheus">Настройка Prometheus</a>
 Создадим файл `prometheus.yml` и зададим настройку экспортеров и служб:
@@ -103,6 +112,11 @@ services:
     environment:
       - GF_SECURITY_ADMIN_USER=${GF_SECURITY_ADMIN_USER}
       - GF_SECURITY_ADMIN_PASSWORD=${GF_SECURITY_ADMIN_PASSWORD}
+      - GF_SERVER_PROTOCOL=https
+      - GF_SERVER_CERT_FILE=/var/lib/grafana/cert.crt
+      - GF_SERVER_CERT_KEY=/var/lib/grafana/private.key
+      - GF_SERVER_DOMAIN=localhost
+      - GF_SERVER_ROOT_URL=https://localhost:3000/      
     user: "472:472"
     read_only: true    
     security_opt:
@@ -110,8 +124,11 @@ services:
     cap_drop:
       - ALL      
     # задать для grafana-data владельца UID 472
+    # задать для cert владельца UID 472
     volumes:
       - ./grafana-data:/var/lib/grafana
+      - ./cert/cert.crt:/var/lib/grafana/cert.crt:ro
+      - ./cert/private.key:/var/lib/grafana/private.key:ro      
     networks:
       - monitoring
   
@@ -163,7 +180,7 @@ sudo ufw deny 9100/tcp
 ```
 
 ## <a id="grafana">Настройка Grafana</a>
-Открываем в браузере адрес localhost:3000, авторизуемся используя ваши данные из файла `.env`
+Открываем в браузере адрес https://localhost:3000, авторизуемся используя ваши данные из файла `.env`
 
 Переходим в Data Source > Add data source > Prometheus
 
