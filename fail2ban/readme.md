@@ -72,7 +72,7 @@ maxretry = 1
 В jail `[sshd]` мы следим за 22 и 12345 портами
 ### 2. Cоздаем файл portscan.conf
 ```bash
-sudo touch /etc/fail2ban/filter.d/portsacn.conf
+sudo touch /etc/fail2ban/filter.d/portscan.conf
 ```
 Прописываем [там](portscan.conf) настройки фильтра сканирования портов
 ```
