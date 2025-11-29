@@ -36,7 +36,7 @@ ls -l ~/.ssh/id_*.pub
 ```
 Копируем public ключ на сервер (где, username это имя пользователя на сервере, 1.2.3.4 это IP-адрес сервера)
 ```bash
-ssh-copy-id username@1.2.3.4
+ssh-copy-id -i ~/.ssh/id_rsa.pub username@1.2.3.4
 ```
 Подключаемся к серверу `ssh username@1.2.3.4`
 
