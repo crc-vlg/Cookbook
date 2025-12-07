@@ -66,6 +66,17 @@ action   = iptables-allports[name=ManualBan]
 logpath  = /dev/null
 bantime  = -1
 maxretry = 1
+
+# Блок атак IPMI
+[ipmi]
+enabled	= true
+filter	= ipmi
+backend = systemd
+action	= iptables-allports[name=ipmi]
+logpath = journalmatch:_SYSTEMD_UNIT=kernel.service
+maxretry = 1
+findtime = 3h
+bantime = 30d
 ```
 Здесь в `ignoreip` мы задали игнорировать IP-адреса локальной сети, а также для примера указали игнорировать IP-адрес 1.2.3.4
 
@@ -91,7 +102,18 @@ sudo touch /etc/fail2ban/filter.d/manualban.conf
 failregex = 
 ignoreregex =
 ```
-### 4. Настройка уровня логирования SSH
+
+### 4. Защита от атаки на IPMI
+```bash
+sudo touch /etc/fail2ban/filter.d/ipmi.conf
+```
+Прописываем там настройки фильтра для регистрации событий по порту 623/udp
+```
+[Definition]
+failregex = (\[.*?\])?\s*\S+\s+kernel:.*IN=.*SRC=<HOST>.*PROTO=UDP.*DPT=623\s+.*
+ignoreregex =
+```
+### 5. Настройка уровня логирования SSH
 ```bash
 sudo nano /etc/ssh/sshd_config
 ```
